@@ -32,4 +32,20 @@ The separate Boost engine can reject seven-day TDD below 35% or adjusted blended
 
 ### Verification
 
-Tests exercise the real public `OpenAPSSMBPlugin.getIsfMgdl` with controlled history/glucose inputs, rather than a copied blend helper. Stable history, recent changes in both directions, zero recent delivery, adjustment factor, profile percentage, disabled mode, missing week/glucose and database reuse are covered. Execution results and final source/build identity will be recorded after verification.
+Tests exercise the real public `OpenAPSSMBPlugin.getIsfMgdl` with controlled history/glucose inputs, rather than a copied blend helper. Stable history, recent changes in both directions, unequal day/week history, zero recent delivery, adjustment factor, profile percentage, disabled mode, missing week/glucose, database/cache reuse and the actual loop's early stop on stored ISF1001 are covered. Six expected formula failures preceded the production change. Final affected suites: APS359 + Constraints123 = 482 tests, zero failures/errors/skips; unchanged Constraints task was up-to-date on the final run. Independent source review completed; its coverage/documentation findings were addressed.
+
+Local fullDebug APK built successfully using JDK21, one worker, 3 GiB Gradle and 2 GiB Kotlin heaps (2 GiB Gradle failed at D8). No upstream build settings were edited. APK: `app/build/outputs/apk/full/debug/app-full-debug.apk`, version4.0.0, package `info.nightscout.androidaps`. Built commit: `2eb46ee717c6a7fb3a8ba309445210a7a4be7c75`; subsequent commits only add tests/documentation. SHA256: `3473229C21CE325EC361CBE3AF26948789B045ED47A24B145FB173FF4C2B010B`. Debug candidate only; no signing-key migration, installation or hardware acceptance performed.
+
+Reproduce from a clean, committed checkout in PowerShell (run tests and build sequentially; do not run Android Studio builds alongside):
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Microsoft\jdk-21.0.11.10-hotspot'
+$env:ANDROID_HOME = 'C:\Users\linus\AppData\Local\Android\Sdk'
+$env:ANDROID_USER_HOME = 'C:\Users\linus\.android'
+Remove-Item Env:ANDROID_PREFS_ROOT -ErrorAction SilentlyContinue
+$thoArgs = @('--no-parallel', '--max-workers=1', '-Dorg.gradle.jvmargs=-Xmx3g -XX:+UseParallelGC -Xss4m', '-Pkotlin.daemon.jvmargs=-Xmx2g', '--console=plain')
+.\gradlew.bat :plugins:aps:testAndroidHostTest :plugins:constraints:testAndroidHostTest @thoArgs
+if ($LASTEXITCODE -ne 0) { throw 'Host tests failed' }
+.\gradlew.bat :app:assembleFullDebug @thoArgs
+if ($LASTEXITCODE -ne 0) { throw 'Debug build failed' }
+```
