@@ -2,9 +2,25 @@
 
 Base: official 4.0.0 (`f77abd9b82b308e8fc330da0d7a31370fb4a0f49`). No Boost merge.
 
-## Current focus: when 80/10/10 actually applies
+## Complete feature mapping
 
-Thomas narrowed the first step on 2026-11-14 to tracing and testing the 80/10/10 calculation in original AAPS. DST and other migration candidates are deferred, not abandoned. No changes to plausibility limits are authorized by assumption.
+Thomas authorized completion of all remaining applicable features on 2026-11-14. The Boost register THO01..09 and complete personal net diff against Boost4.0.0-6.3.2 were reviewed. Decisions for original AAPS:
+
+| ID | Original AAPS decision |
+|---|---|
+| THO-01 | Retain 80/10/10 in actual SMB DynISF and align the legacy device-test JS comparator. No Boost-only pull-down. |
+| THO-02 | Do not import Boost's profile-implied 35%/15% fallback thresholds, per the DynISF investigation. Keep original numerical/absolute-limit behavior unchanged. |
+| THO-03 | Daily Boost auto-config and its sample/evidence schedule are excluded. No corresponding feature is needed in original AAPS. |
+| THO-04 | Boost parameter Auto/manual ownership, persisted ledger and settings switches are excluded with auto-config. |
+| THO-05 | Retain one-hour DST detection and a 60-minute suspension from detection. Spring/autumn 59/60/61-minute boundaries and actual running-mode command are tested; DST-capable pumps remain exempt. This is not a guarantee that suspension ends exactly one hour after the transition when detection happens late. |
+| THO-06 | Exclude Boost history sync and its four-day window. Original DynISF still requires complete one-/seven-day TDD plus the recent windows; no implicit relaxation of data requirements. |
+| THO-07 | Reuse the local workspace build helper with a dedicated original-AAPS profile and artifact folder. Retain upstream build settings and UI; no obsolete plugin or historical patch is revived. |
+| THO-08 | Boost daily tightening/confirmation changes are excluded with auto-config. |
+| THO-09 | Cap-band replay investigation changed no production bands and supplies no feature for original AAPS. |
+
+The older 26-file personal register is accounted for by these IDs, including tests, resources, keys, history logic and documentation. Inactive historical patches, intermediate blends/cadences and unimplemented adaptive/MAX-ISF ideas are not additional missing features. Release signing and real Android/Bluetooth acceptance remain separate from source integration; no emulators or hosted builds.
+
+## When 80/10/10 actually applies
 
 The official formula in `OpenAPSSMBPlugin.calculateRawDynIsf` uses weighted-eight-hour / seven-day / one-day TDD at 33/34/33. The personal change is 80/10/10 at that single production expression; adjustment factor and original profile percentage still multiply the result. No Boost pull-down or profile-implied 35%/15% guard is imported.
 
@@ -34,7 +50,15 @@ The separate Boost engine can reject seven-day TDD below 35% or adjusted blended
 
 Tests exercise the real public `OpenAPSSMBPlugin.getIsfMgdl` with controlled history/glucose inputs, rather than a copied blend helper. Stable history, recent changes in both directions, unequal day/week history, zero recent delivery, adjustment factor, profile percentage, disabled mode, missing week/glucose, database/cache reuse and the actual loop's early stop on stored ISF1001 are covered. Six expected formula failures preceded the production change. Final affected suites: APS359 + Constraints123 = 482 tests, zero failures/errors/skips; unchanged Constraints task was up-to-date on the final run. Independent source review completed; its coverage/documentation findings were addressed.
 
-Local fullDebug APK built successfully using JDK21, one worker, 3 GiB Gradle and 2 GiB Kotlin heaps (2 GiB Gradle failed at D8). No upstream build settings were edited. APK: `app/build/outputs/apk/full/debug/app-full-debug.apk`, version4.0.0, package `info.nightscout.androidaps`. Built commit: `2eb46ee717c6a7fb3a8ba309445210a7a4be7c75`; subsequent commits only add tests/documentation. SHA256: `3473229C21CE325EC361CBE3AF26948789B045ED47A24B145FB173FF4C2B010B`. Debug candidate only; no signing-key migration, installation or hardware acceptance performed.
+The initial DynISF-only fullDebug APK built successfully using JDK21, one worker, 3 GiB Gradle and 2 GiB Kotlin heaps (2 GiB Gradle failed at D8). Historical built commit: `2eb46ee717c6a7fb3a8ba309445210a7a4be7c75`; SHA256 `3473229C21CE325EC361CBE3AF26948789B045ED47A24B145FB173FF4C2B010B`. This predates the completed DST port. Final combined verification is recorded below after execution. No upstream build settings were edited.
+
+Default build/export from the AAPS workspace root:
+
+```powershell
+& .\_codex\tooling\Build-AapsArtifact.ps1 -ZoneName AAPS-ORIG -RepoName AAPS-ORIG-THO
+```
+
+The existing helper selects this repo, restores process environment, builds only fullDebug and exports date+commit filenames to `C:\Users\linus\Desktop\HEALTH\LOOP\AAPS\ORIG`. Release builds remain blocked. Tests can use the explicit command below from this repo.
 
 Reproduce from a clean, committed checkout in PowerShell (run tests and build sequentially; do not run Android Studio builds alongside):
 
