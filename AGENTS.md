@@ -14,4 +14,4 @@ Follow the parent AAPS workspace instructions. Keep this variant close to offici
 - Tag built candidates and personally accepted versions with distinct names and record source SHA and artifact hash. Preserve the last accepted artifact until a replacement is accepted.
 - No force-push, destructive cleanup, release signing, therapy-device installation or overwriting sensitive configuration without explicit authorization under workspace policy. Keep secrets and health data out of Git.
 
-Initial setup changes only remotes/local push configuration and this instruction file; application code remains official AAPS 4.0.0.
+Read `docs/tho/CUSTOMIZATIONS.md` for the personal behavior diff against official AAPS 4.0.0 and remaining migration work.
