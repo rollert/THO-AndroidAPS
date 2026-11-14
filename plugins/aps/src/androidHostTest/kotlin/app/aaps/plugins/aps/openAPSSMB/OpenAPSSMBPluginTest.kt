@@ -16,6 +16,7 @@ import app.aaps.core.interfaces.utils.DateUtil
 import app.aaps.core.keys.BooleanKey
 import app.aaps.core.keys.IntKey
 import app.aaps.core.objects.profile.ProfileSealed
+import app.aaps.plugins.aps.ApsStrings
 import app.aaps.shared.tests.TestBaseWithProfile
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -154,6 +156,7 @@ class OpenAPSSMBPluginTest : TestBaseWithProfile() {
 
     @Test fun `stored out of range ISF stops the loop before fresh TDD calculation`() = runBlocking {
         history()
+        doReturn("OpenAPS SMB").whenever(rh).gs(ApsStrings.openapssmb)
         openAPSSMBPlugin.setPluginEnabled(PluginType.APS, true)
         whenever(activePlugin.activeAPS).thenReturn(openAPSSMBPlugin)
         val runningProfile = ProfileSealed.EPS(effectiveProfileSwitch, activePlugin)
