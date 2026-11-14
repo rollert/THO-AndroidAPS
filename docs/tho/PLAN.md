@@ -29,3 +29,15 @@ Recent rising/falling TDD must reach the public DynISF calculation without a new
 - Final verification: APS359 + Constraints123 = 482 tests, zero failures/errors/skips. APS executed successfully in the final fixed run; unchanged Constraints reports remain from the earlier successful full run, final task up-to-date. The stored ISF1001 test reaches the actual public lookup in invoke and proves no fresh seven-day query happens afterward. Log _codex/orig-dynisf-final-tests-fixed-2026-11-14.log. No unresolved review finding in this scoped change; hardware/clinical claims declined and not asserted.
 - Ruling: use one short plan/ledger in docs/tho rather than additional process folders and task-runner scaffolding, following Thomas' simplicity requirement.
 - Ruling: no speculative guard loosening. Official SMB does not have Boost's profile-implied TDD thresholds; importing them would introduce additional fallbacks Thomas specifically wants investigated. Characterize the existing public path first.
+
+## Completion — authorized 2026-11-14
+
+Thomas requested all remaining applicable features. Base dcd573773c; branch feature/complete-original-port in the supplied checkout. Full Boost net diff against 4.0.0-boost-6.3.2 and the nine customization IDs were checked; no additional personal behavior beyond the register was found.
+
+- [ ] Add spring/autumn 59/60/61-minute tests against actual DstHelperPlugin.wasDST; commit and run before changing production. Expected: fail at 60 minutes with upstream's three-hour window.
+- [ ] Change only DISABLE_TIME_FRAME_HOURS from -3 to -1 and matching documentation/legacy expectation. The same constant feeds running-mode suspension duration. Verify new boundary tests, then full Constraints suite.
+- [ ] Map THO01..09 explicitly for original AAPS. Keep 80/10/10 without Boost pull-down, omit relative profile floors per prior decision, omit Boost auto-config/ownership/history/replay behavior. No new dosing policies or UI.
+- [ ] Add the original repo's local build profile using verified JDK21/3 GiB Gradle/2 GiB Kotlin/one-worker settings, and register its existing path in workspace metadata. Export debug artifacts under Desktop/HEALTH/LOOP/AAPS/ORIG. Reuse the existing helper, no new build framework.
+- [ ] Run full affected local tests and helper build; independently review the final diff. Resolve material findings, pin the built source and hash, then integrate locally without rewriting history. No hosted build, release signing, emulator or phone installation.
+
+Review focus: spring/autumn elapsed-time boundaries; suspension duration and detection must use the same constant; pumps that handle DST remain exempt; old warning behavior retained. Existing DynISF tests must stay green and no Boost-specific policy should enter original AAPS. Build profile must select the original repo and restore process environment.
