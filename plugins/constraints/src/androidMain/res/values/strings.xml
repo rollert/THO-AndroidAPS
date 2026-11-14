@@ -4,6 +4,7 @@
     <string name="dst_plugin_name" translatable="false">Daylight Saving time</string>
     <string name="dst_in_24h_warning">Daylight Saving time change in 24h or less</string>
     <string name="dst_loop_disabled_warning">Daylight Saving time change less than 3 hours ago - Closed loop disabled</string>
+    <string name="tho_dst_loop_disabled_warning">Clock changed within the last hour - loop suspended for 60 minutes from detection</string>
 
     <!-- Storage constraint -->
     <string name="storage" translatable="false">Storage constraint</string>

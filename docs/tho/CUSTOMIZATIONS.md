@@ -12,7 +12,7 @@ Thomas authorized completion of all remaining applicable features on 2026-11-14.
 | THO-02 | Do not import Boost's profile-implied 35%/15% fallback thresholds, per the DynISF investigation. Keep original numerical/absolute-limit behavior unchanged. |
 | THO-03 | Daily Boost auto-config and its sample/evidence schedule are excluded. No corresponding feature is needed in original AAPS. |
 | THO-04 | Boost parameter Auto/manual ownership, persisted ledger and settings switches are excluded with auto-config. |
-| THO-05 | Retain one-hour DST detection and a 60-minute suspension from detection. Spring/autumn 59/60/61-minute boundaries and actual running-mode command are tested; DST-capable pumps remain exempt. This is not a guarantee that suspension ends exactly one hour after the transition when detection happens late. |
+| THO-05 | Retain one-hour DST detection and a 60-minute suspension from detection. Spring/autumn 59/60/61-minute boundaries and actual running-mode command are tested; DST-capable pumps remain exempt. Notification uses a personal EN/DE string so other locales fall back to correct English instead of upstream three-hour wording. This is not a guarantee that suspension ends exactly one hour after the transition when detection happens late. |
 | THO-06 | Exclude Boost history sync and its four-day window. Original DynISF still requires complete one-/seven-day TDD plus the recent windows; no implicit relaxation of data requirements. |
 | THO-07 | Reuse the local workspace build helper with a dedicated original-AAPS profile and artifact folder. Retain upstream build settings and UI; no obsolete plugin or historical patch is revived. |
 | THO-08 | Boost daily tightening/confirmation changes are excluded with auto-config. |
@@ -58,7 +58,7 @@ Default build/export from the AAPS workspace root:
 & .\_codex\tooling\Build-AapsArtifact.ps1 -ZoneName AAPS-ORIG -RepoName AAPS-ORIG-THO
 ```
 
-The existing helper selects this repo, restores process environment, builds only fullDebug and exports date+commit filenames to `C:\Users\linus\Desktop\HEALTH\LOOP\AAPS\ORIG`. Release builds remain blocked. Tests can use the explicit command below from this repo.
+The existing helper selects this repo, restores process environment, builds fullDebug by default and exports date+commit filenames to `C:\Users\linus\Desktop\HEALTH\LOOP\AAPS\ORIG`. Release builds remain blocked. Tests can use the explicit command below from this repo.
 
 Reproduce from a clean, committed checkout in PowerShell (run tests and build sequentially; do not run Android Studio builds alongside):
 

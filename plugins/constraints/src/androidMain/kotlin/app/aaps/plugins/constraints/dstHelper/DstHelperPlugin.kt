@@ -91,7 +91,7 @@ class DstHelperPlugin(
                 if (snoozedTo == 0L || System.currentTimeMillis() > snoozedTo) {
                     notificationManager.post(
                         NotificationId.DST_LOOP_DISABLED,
-                        ConstraintsStrings.dst_loop_disabled_warning,
+                        ConstraintsStrings.tho_dst_loop_disabled_warning,
                         actions = listOf(NotificationAction(CoreUiStrings.snooze) {
                             preferences.put(DstHelperLongKey.SnoozeLoopDisabled, System.currentTimeMillis() + T.hours(24).msecs())
                         }))
