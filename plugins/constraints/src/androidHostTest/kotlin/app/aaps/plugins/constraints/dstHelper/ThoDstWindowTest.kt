@@ -50,7 +50,7 @@ class ThoDstWindowTest : TestBaseWithProfile() {
         check("2026-10-25T02:01:00Z", false)
     }
 
-    @Test fun `DST check requests sixty minutes of suspension from detection`() = runBlocking {
+    @Test fun `DST check requests sixty minutes of suspension from detection`() = runBlocking<Unit> {
         whenever(activePlugin.activePump).thenReturn(pump)
         whenever(pump.canHandleDST()).thenReturn(false)
         whenever(loop.runningMode()).thenReturn(RM.Mode.CLOSED_LOOP)
