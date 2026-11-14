@@ -4,7 +4,7 @@ import app.aaps.core.data.model.RM
 import app.aaps.core.data.ue.Action
 import app.aaps.core.data.ue.Sources
 import app.aaps.core.interfaces.aps.Loop
-import app.aaps.core.interfaces.pump.Pump
+import app.aaps.core.interfaces.pump.PumpWithConcentration
 import app.aaps.shared.tests.TestBaseWithProfile
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.jupiter.api.BeforeEach
@@ -21,7 +21,7 @@ import java.util.TimeZone
 
 class ThoDstWindowTest : TestBaseWithProfile() {
     @Mock lateinit var loop: Loop
-    @Mock lateinit var pump: Pump
+    @Mock lateinit var pump: PumpWithConcentration
     private lateinit var plugin: DstHelperPlugin
 
     @BeforeEach fun prepare() {
