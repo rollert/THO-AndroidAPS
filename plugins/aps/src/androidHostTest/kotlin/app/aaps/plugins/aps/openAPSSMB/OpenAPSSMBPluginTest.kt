@@ -23,6 +23,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class OpenAPSSMBPluginTest : TestBaseWithProfile() {
@@ -94,6 +96,12 @@ class OpenAPSSMBPluginTest : TestBaseWithProfile() {
         assertThat(openAPSSMBPlugin.getIsfMgdl(effectiveProfile, "test")).isEqualTo(22.4)
     }
 
+    @Test fun `different weekly and daily history each retain ten percent of the blend`() {
+        history(recentFourHours = 2.0, sevenDay = 60.0, oneDay = 24.0)
+        // Weighted recent TDD 12, week 60, day 24 => TDD 18, ISF 107.3.
+        assertThat(openAPSSMBPlugin.getIsfMgdl(effectiveProfile, "test")).isEqualTo(107.3)
+    }
+
     @Test fun `zero recent delivery still uses the blend without a profile implied floor`() {
         history(recentFourHours = 0.0)
         // The two historical components still provide TDD 9.6.
@@ -142,5 +150,23 @@ class OpenAPSSMBPluginTest : TestBaseWithProfile() {
         assertThat(openAPSSMBPlugin.getIsfMgdl(effectiveProfile, "test")).isEqualTo(100.6)
         history(recentFourHours = 16.0)
         assertThat(openAPSSMBPlugin.getIsfMgdl(effectiveProfile, "test")).isEqualTo(100.6)
+    }
+
+    @Test fun `stored out of range ISF stops the loop before fresh TDD calculation`() = runBlocking {
+        history()
+        openAPSSMBPlugin.setPluginEnabled(PluginType.APS, true)
+        whenever(activePlugin.activeAPS).thenReturn(openAPSSMBPlugin)
+        val runningProfile = ProfileSealed.EPS(effectiveProfileSwitch, activePlugin)
+        whenever(profileFunction.getProfile()).thenReturn(runningProfile)
+        whenever(previousResult.variableSens).thenReturn(1001.0)
+        whenever(persistenceLayer.getApsResultCloseTo(any())).thenReturn(previousResult)
+
+        openAPSSMBPlugin.invoke("test", tempBasalFallback = false)
+
+        // The real public lookup reaches the stored value; the real hard-limit check aborts
+        // before the loop reads fresh history. This is an existing upstream limit, not a new one.
+        verify(persistenceLayer).getApsResultCloseTo(any())
+        verify(tddCalculator, never()).calculate(7, allowMissingDays = false)
+        assertThat(openAPSSMBPlugin.lastAPSResult).isNull()
     }
 }
