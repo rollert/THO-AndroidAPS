@@ -77,3 +77,13 @@ if ($LASTEXITCODE -ne 0) { throw 'Host tests failed' }
 .\gradlew.bat :app:assembleFullDebug @thoArgs
 if ($LASTEXITCODE -ne 0) { throw 'Debug build failed' }
 ```
+
+## Signed release and session closeout — 2026-11-14
+
+Thomas built and signed `app/full/release/app-full-release.apk` from `8143ef4bd053aaf50879374863326a747370de5d` (embedded DEX build marker independently checked). Local reference tag: `tho-aaps-4.0.0-signed1`. This source has the same application behavior as the tested debug candidate; later differences were documentation/tests. Codex performed no release signing or phone operation.
+
+The signed release is149424147bytes, SHA256 `79FFDD91E463DC561C224A0CF4A44CAD77FD391DD3DE4B04472C38E4ABE22737`. Signature verification passed; its certificate matches Thomas' working signed Boost reference. Original release is smaller than Boost release153660107bytes; the earlier approximately250MB original artifact was a debug build. These packaging checks do not prove runtime behavior.
+
+Thomas reports successful startup after independently deleting installation data and reinstalling. He considers the prior Boost installation the likely cause of the earlier first-start crash. No crash trace proves the precise cause; an in-place Boost-to-original migration is not validated by a clean-data start. Do not turn data deletion into a routine update step. This records initial user-reported operation, not comprehensive Bluetooth/pump or clinical acceptance.
+
+The unchanged signed APK, JSON provenance and SHA256 sidecar are preserved under `C:\Users\linus\Desktop\HEALTH\LOOP\AAPS\ORIG\AAPS-ORIG-THO_4.0.0_signed_2026-11-14_8143ef4bd0.apk`. Original APK and signing material remain untouched. Tests/builds remain exclusively local; repository-wide GitHub Actions was explicitly disabled before the closeout push to preserve that policy. Source publication targets `rollert/THO-AndroidAPS`, branch `master`, with candidate and signed-reference tags; remote refs are verified at session closeout. No APK or private configuration is committed to Git.
