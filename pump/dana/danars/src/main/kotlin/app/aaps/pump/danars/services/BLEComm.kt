@@ -195,6 +195,11 @@ class BLEComm(
                 preferences.put(DanaLongKey.LastClearKeyRequest, dateUtil.now())
             }
         }
+        disconnectTransport()
+    }
+
+    @Synchronized
+    private fun disconnectTransport() {
         // cancel previous scheduled disconnection to prevent closing upcoming connection
         scheduledDisconnection?.cancel(false)
         scheduledDisconnection = null
@@ -565,7 +570,7 @@ class BLEComm(
                 }
             }
             // response PUMP : error status. Dana-i2 adds 1 byte of error flags.
-            // It must not fall into the wrong serial branch below, that would clear the pairing.
+            // Report the actual pump error instead of treating it as an unknown response.
         } else if ((decryptedBuffer.size == 6 || decryptedBuffer.size == 7) && decryptedBuffer[2] == 'P'.code.toByte() && decryptedBuffer[3] == 'U'.code.toByte() && decryptedBuffer[4] == 'M'.code.toByte() && decryptedBuffer[5] == 'P'.code.toByte()) {
             val errorFlags = if (decryptedBuffer.size == 7) decryptedBuffer[6].toInt() and 0xFF else null
             val errorText = alarmReporter.pumpCheckErrorText(errorFlags)
@@ -581,13 +586,14 @@ class BLEComm(
             mSendQueue.clear()
             rxBus.send(EventPumpStatusChanged(EventPumpStatusChanged.Status.DISCONNECTED, rh.gs(app.aaps.core.ui.R.string.pump_busy)))
         } else {
-            // ERROR in response, wrong serial number
-            aapsLogger.debug(LTag.PUMPBTCOMM, "<<<<< " + "ENCRYPTION__PUMP_CHECK (ERROR)" + " " + DanaRSPacket.toHexString(decryptedBuffer))
-            bleTransport.updatePairingState(PairingState(step = PairingStep.ERROR, errorMessage = rh.gs(app.aaps.core.ui.R.string.connection_error)))
-            mSendQueue.clear()
-            rxBus.send(EventPumpStatusChanged(EventPumpStatusChanged.Status.DISCONNECTED, rh.gs(app.aaps.core.ui.R.string.connection_error)))
-            danaRSPlugin.clearPairing()
-            notificationManager.post(NotificationId.WRONG_SERIAL_NUMBER, TextRef.AndroidRes(app.aaps.core.ui.R.string.password_cleared))
+            // An incomplete or unknown reply does not establish that the stored keys are invalid.
+            val message = rh.gs(app.aaps.core.ui.R.string.connection_error)
+            aapsLogger.warn(LTag.PUMPBTCOMM, "Unexpected pump check reply (${decryptedBuffer.size} bytes); keeping pairing")
+            bleTransport.updatePairingState(PairingState(step = PairingStep.ERROR, errorMessage = message))
+            rxBus.send(EventPumpStatusChanged(EventPumpStatusChanged.Status.DISCONNECTED, message))
+            synchronized(readBuffer) { bufferLength = 0 }
+            // End this attempt without invoking the encrypted-session recovery heuristics.
+            disconnectTransport()
         }
     }
 
