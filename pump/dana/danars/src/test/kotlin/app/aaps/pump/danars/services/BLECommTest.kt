@@ -311,6 +311,24 @@ class BLECommTest : TestBase() {
             "PUMP".encodeToByteArray() + errorByte.map { it.toByte() }.toByteArray()
 
     /**
+     * The empty 02 00 pump-check reply is reported in upstream #5571 after a disrupted handshake.
+     * It contains no evidence of a serial-number mismatch. Fail this handshake without deleting
+     * the existing credentials needed for the next connection. No real BLE device is used here.
+     */
+    @Test
+    fun emptyPumpCheckReplyMustNotInvalidateAnExistingPairing() {
+        whenever(bleEncryption.getDecryptedPacket(any())).thenReturn(
+            byteArrayOf(BleEncryption.DANAR_PACKET__TYPE_ENCRYPTION_RESPONSE.toByte(), BleEncryption.DANAR_PACKET__OPCODE_ENCRYPTION__PUMP_CHECK.toByte())
+        )
+
+        bleComm.onCharacteristicChanged(framedPacket())
+
+        assertThat(bleComm.isConnected).isFalse()
+        verify(bleTransport).updatePairingState(PairingState(step = PairingStep.ERROR, errorMessage = "test"))
+        verify(danaRSPlugin, never()).clearPairing()
+    }
+
+    /**
      * Dana-i2 adds 1 error byte to the "PUMP" reply. This 7 byte reply used to miss the "PUMP" check
      * and fall into the wrong serial branch, which cleared the pairing and hid the real pump error.
      */
