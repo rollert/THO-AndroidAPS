@@ -4,7 +4,9 @@
 
 An empty or unknown pump-check reply ends the current Bluetooth attempt and preserves the saved pairing. The normal reconnect path still requires the pump handshake to succeed. Recognized pump alarms and manual pairing removal retain their existing behavior. The failure and follow-up patch relate to [upstream issue #5571](https://github.com/nightscout/AndroidAPS/issues/5571).
 
-Thomas builds the signed release locally in Android Studio and tests it on his phone with his Dana-RS. The phone sync folder for that signed APK is `C:\Users\linus\Desktop\SYNC\AAPS`. The local Gradle helper exports debug packages to the separate ORIG artifact directory. The signed build remains a candidate until Thomas reports how the pump connection behaves in normal use.
+For a phone update test, build the fullRelease APK and sign it with the certificate already used for the installed release. The phone sync folder for the signed APK is `C:\Users\linus\Desktop\SYNC\AAPS`. The local Gradle helper exports debug packages to the separate ORIG artifact directory. Runtime acceptance uses the real phone and Dana-RS.
+
+Signed test candidate found in the sync folder as `ORIG AAPS 4.0.0 20261114_pairing_repaired.apk`. Its embedded build identifier points to commit `4f53b584294620af0db5cd1b1b17dac3b6c3d15d` and build date 2026-11-18. The APK verifies with the same signing certificate as the previous original release and uses the same application ID and version code. SHA256 `CBB135F64BA57795E6E61569A4AE357ECDB77E62AB10D43D99992F6E19058912`. The build contains the tested Dana-RS fix. Device acceptance remains pending.
 
 The regression test reproduced automatic key deletion before the fix. It now verifies three failed attempts, transport disconnects and preservation of both the app pairing and Android bond. All 277 Dana-RS JVM tests passed. The local fullDebug APK and tag `tho-aaps-4.0.0-dana-rs-rc1` identify built commit `049b2e2f8a3af89218145b981b140bc105efad40`. Exported APK SHA256 `D67CD8F5F8D04D5F8526C06AEA872956DFF5FE3283F227F11098B6207035C4C9`. Bluetooth recovery on physical hardware remains unverified.
 
