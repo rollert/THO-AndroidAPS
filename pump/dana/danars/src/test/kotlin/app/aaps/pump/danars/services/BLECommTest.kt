@@ -317,15 +317,25 @@ class BLECommTest : TestBase() {
      */
     @Test
     fun emptyPumpCheckReplyMustNotInvalidateAnExistingPairing() {
+        whenever(bleAdapter.getDeviceName(ADDRESS)).thenReturn("DanaRS")
+        whenever(bleAdapter.isDeviceBonded(ADDRESS)).thenReturn(true)
+        whenever(bleGatt.connect(ADDRESS)).thenReturn(true)
         whenever(bleEncryption.getDecryptedPacket(any())).thenReturn(
             byteArrayOf(BleEncryption.DANAR_PACKET__TYPE_ENCRYPTION_RESPONSE.toByte(), BleEncryption.DANAR_PACKET__OPCODE_ENCRYPTION__PUMP_CHECK.toByte())
         )
 
-        bleComm.onCharacteristicChanged(framedPacket())
+        repeat(3) {
+            assertThat(bleComm.connect("test", ADDRESS)).isTrue()
+            bleComm.onCharacteristicChanged(framedPacket())
+            assertThat(bleComm.isConnected).isFalse()
+            bleComm.onConnectionStateChanged(false)
+            assertThat(bleComm.isConnecting).isFalse()
+        }
 
-        assertThat(bleComm.isConnected).isFalse()
-        verify(bleTransport).updatePairingState(PairingState(step = PairingStep.ERROR, errorMessage = "test"))
+        verify(bleTransport, times(3)).updatePairingState(PairingState(step = PairingStep.ERROR, errorMessage = "test"))
         verify(danaRSPlugin, never()).clearPairing()
+        verify(bleAdapter, never()).removeBond(ADDRESS)
+        verify(bleGatt, times(3)).disconnect()
     }
 
     /**
