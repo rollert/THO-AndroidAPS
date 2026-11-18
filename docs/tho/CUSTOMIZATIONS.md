@@ -4,6 +4,8 @@
 
 An empty or unknown pump-check reply ends the current Bluetooth attempt and preserves the saved pairing. The normal reconnect path still requires the pump handshake to succeed. Recognized pump alarms and manual pairing removal retain their existing behavior. The failure and follow-up patch relate to [upstream issue #5571](https://github.com/nightscout/AndroidAPS/issues/5571).
 
+Thomas builds the signed release locally in Android Studio and tests it on his phone with his Dana-RS. The phone sync folder for that signed APK is `C:\Users\linus\Desktop\SYNC\AAPS`. The local Gradle helper exports debug packages to the separate ORIG artifact directory. The signed build remains a candidate until Thomas reports how the pump connection behaves in normal use.
+
 The regression test reproduced automatic key deletion before the fix. It now verifies three failed attempts, transport disconnects and preservation of both the app pairing and Android bond. All 277 Dana-RS JVM tests passed. The local fullDebug APK and tag `tho-aaps-4.0.0-dana-rs-rc1` identify built commit `049b2e2f8a3af89218145b981b140bc105efad40`. Exported APK SHA256 `D67CD8F5F8D04D5F8526C06AEA872956DFF5FE3283F227F11098B6207035C4C9`. Bluetooth recovery on physical hardware remains unverified.
 
 Base: official 4.0.0 (`f77abd9b82b308e8fc330da0d7a31370fb4a0f49`). No Boost merge.
